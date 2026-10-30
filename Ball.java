@@ -23,7 +23,7 @@ public class Ball{
      */
     public boolean overlap(Ball b){
         //do this
-
+        return true;
     }
 
 }

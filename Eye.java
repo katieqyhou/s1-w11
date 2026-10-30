@@ -9,6 +9,9 @@ public class Eye {
     private int pupilRadius = 10;
     private double horDist, vertDist;
 
+    private int clickedX;
+    private int clickedY;
+
 
     public Eye(int x, int y, int width, int height) {
         // top left of this eye
@@ -39,7 +42,7 @@ public class Eye {
     }
 
     
-    public void draw (Graphics g) {
+    public void draw (Graphics g, int clickedX, int clickedY) {
         
         g.setColor(Color.black);
         g.fillOval (eyeX, eyeY, eyeWidth, eyeHeight);
@@ -50,6 +53,20 @@ public class Eye {
                     
         g.setColor(Color.black);
         g.fillOval(pupilX - pupilRadius, pupilY - pupilRadius, 2 * pupilRadius, 2 * pupilRadius);
+
+        // g.setColor(Color.red);
+        // g.drawLine(clickedX, clickedY, eyeCenterX, eyeCenterY);
+
+        Graphics2D g2 = (Graphics2D) g;
+        Stroke oldStroke = g2.getStroke();
+
+        g2.setColor(Color.red);
+        g2.setStroke(new BasicStroke(2.0f)); // thickness in pixels
+        g2.drawLine(clickedX, clickedY, eyeCenterX, eyeCenterY);
+
+        g2.setStroke(oldStroke);        
+
+        
     }
 
 
@@ -66,17 +83,26 @@ public class Eye {
         int deltaX = clickX - eyeCenterX;
         int deltaY = clickY - eyeCenterY;
 
+        boolean isInEye = inEye(clickX, clickY);
+
         if (deltaX == 0) {
             //first check if the click was exactly aligned vertically with eye center
             // why?  In general we need to calculate a slope, and perfect vertical has an infinite
             // slope, which will cause an error.  So, this is a special case.
             pupilX = eyeCenterX;
+
             if (deltaY < 0) {
                 // remember, vertDist is the maximum vertical distance the pupil will be from the eye center
                 pupilY = (int) (eyeCenterY - vertDist);
             } else {
                 pupilY = (int) (eyeCenterY + vertDist);
             }
+
+        } else if (isInEye) {
+            //
+            pupilX = clickX;
+            pupilY = clickY;
+
         } else {
             // this is for all other clicks.  We use doubles for more precision.
             // remember, slope will be positive if the click was in the upper right or lower left
@@ -87,7 +113,20 @@ public class Eye {
             pupilX = (int) precisePupilX;
             // findY will calculate the vertical posiiton of the pupil, at most vertDist away from eye center 
             pupilY = (int) findY(precisePupilX, slope);
+            
         }
+        // else if(event.getX < eyeX + eyeWidth && eyeY + eyeHeight)
+    
+    }
+
+    public boolean inEye (int mouseX, int mouseY) {
+        double dist = square(mouseX - eyeCenterX) / square(eyeWidth/2-pupilRadius) 
+                 + square(mouseY - eyeCenterY) / square(eyeHeight/2-pupilRadius);
+        return (dist <= 1);    
+    }
+
+    public double square(double x) {
+        return x * x;
     }
     
     // findX calculates the new horizonal position of the pupil, at most horDist away from eye center
@@ -110,11 +149,5 @@ public class Eye {
         // remember your geometry?  y = mx + b?  woot!
         return ( (slope * (pupX - eyeCenterX)) + eyeCenterY );
     }
-    
-    
-    
-
-
-
 
 }  //end class
