@@ -34,8 +34,8 @@ public class XEyes extends JPanel implements MouseListener, MouseMotionListener 
         constructImage(fileName);
 
         // these eyes fit right on Einstein's head.
-        eye_1 = new Eye(269, 290, 49, 37);
-        eye_2 = new Eye(372, 290, 49, 37);
+        eye_1 = new Eye(269, 291, 49, 37);
+        eye_2 = new Eye(372, 291, 49, 37);
 
         addMouseListener(this);
 
